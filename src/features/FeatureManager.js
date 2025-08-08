@@ -1,13 +1,15 @@
 // Feature Manager - Handles enabling/disabling individual features
 import SpellEnhancementsFeature from './spellEnhancements';
 import AddExtraSpellsFeature from './addExtraSpells';
+import PetsFeature from './pets';
 
 class FeatureManager {
   constructor(tabDetector) {
     this.tabDetector = tabDetector;
     this.features = {
       spellEnhancements: new SpellEnhancementsFeature(),
-      addExtraSpells: new AddExtraSpellsFeature()
+      addExtraSpells: new AddExtraSpellsFeature(),
+      pets: new PetsFeature()
     };
     
     this.enabledFeatures = new Set();
