@@ -15,11 +15,11 @@ A powerful userscript that enhances your D&D Beyond character sheets with additi
 
 ```javascript
 // ==UserScript==
-// @name         D&D Beyond Toolbelt DEV
+// @name         D&D Beyond Toolbelt PROD
 // @namespace    http://tampermonkey.net/
 // @version      2025-08-02
 // @description  Enhanced D&D Beyond character sheet with additional features
-// @author       You
+// @author       Alex Kollan
 // @match        https://www.dndbeyond.com/characters/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=dndbeyond.com
 // @grant        none
