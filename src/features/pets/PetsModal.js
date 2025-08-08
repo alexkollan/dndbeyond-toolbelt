@@ -1,5 +1,6 @@
 import PetTemplates from './petTemplates.js';
 import petsData from './petsData.js';
+import ActivePetsManager from './ActivePetsManager.js';
 
 class PetsModal {
   constructor() {
@@ -7,6 +8,10 @@ class PetsModal {
     this.currentSpell = null;
     this.currentLevel = null;
     this.isMinimized = false;
+    this.expandedPets = new Set(); // Track which pets are expanded
+    this.spellDetailsClickHandler = null; // Store the click handler reference
+    this.spellLevelChangeHandler = null; // Store the spell level change handler
+    this.activePetsManager = new ActivePetsManager(); // Initialize active pets manager
     this.dragData = {
       isDragging: false,
       startX: 0,
@@ -36,10 +41,30 @@ class PetsModal {
 
   destroy() {
     if (this.modal) {
+      // Remove spell details event listeners if they exist
+      const mainContent = this.modal.querySelector('.pets-main-content');
+      if (mainContent && this.spellDetailsClickHandler) {
+        mainContent.removeEventListener('click', this.spellDetailsClickHandler);
+      }
+      
+      const levelSelect = this.modal.querySelector('#spell-level-select');
+      if (levelSelect && this.spellLevelChangeHandler) {
+        levelSelect.removeEventListener('change', this.spellLevelChangeHandler);
+      }
+      
       this.modal.remove();
       this.modal = null;
       this.currentSpell = null;
       this.currentLevel = null;
+      this.expandedPets.clear(); // Clear expanded pets tracking
+      this.spellDetailsClickHandler = null;
+      this.spellLevelChangeHandler = null;
+    }
+    
+    // Clean up active pets manager
+    if (this.activePetsManager) {
+      this.activePetsManager.destroy();
+      this.activePetsManager = null;
     }
   }
 
@@ -244,6 +269,20 @@ class PetsModal {
       selectedItem.classList.add('selected');
     }
 
+    // Only clear expanded pets if we're switching to a different spell
+    if (this.currentSpell !== spellKey) {
+      // Remove expanded pets for the previous spell, but keep others
+      if (this.currentSpell) {
+        const petsToRemove = [];
+        this.expandedPets.forEach(petId => {
+          if (petId.startsWith(`${this.currentSpell}-`)) {
+            petsToRemove.push(petId);
+          }
+        });
+        petsToRemove.forEach(petId => this.expandedPets.delete(petId));
+      }
+    }
+
     this.currentSpell = spellKey;
     this.loadSpellDetails(spellKey);
     this.updateStatus(`Loaded ${petsData[spellKey].name}`);
@@ -252,6 +291,9 @@ class PetsModal {
   loadSpellDetails(spellKey) {
     const spellData = petsData[spellKey];
     const mainContent = this.modal.querySelector('.pets-main-content');
+    
+    // Add spellKey to spellData for template usage
+    const spellDataWithKey = { ...spellData, spellKey };
     
     mainContent.innerHTML = `
       <div class="spell-details">
@@ -262,50 +304,121 @@ class PetsModal {
         </div>
         
         <div class="pets-container">
-          ${PetTemplates.renderPetOptions(spellData)}
+          ${PetTemplates.renderPetOptions(spellDataWithKey, this.currentLevel, this.activePetsManager)}
         </div>
       </div>
     `;
 
-    // Add event listener for spell level selector
+    this.attachSpellDetailsEventListeners();
+    this.restoreExpandedStates();
+  }
+
+  attachSpellDetailsEventListeners() {
+    const mainContent = this.modal.querySelector('.pets-main-content');
+    
+    // Remove existing click handler if it exists
+    if (this.spellDetailsClickHandler) {
+      mainContent.removeEventListener('click', this.spellDetailsClickHandler);
+    }
+    
+    // Handle spell level selector
     const levelSelect = mainContent.querySelector('#spell-level-select');
     if (levelSelect) {
-      levelSelect.addEventListener('change', (e) => {
+      // Remove existing change handler if it exists
+      if (this.spellLevelChangeHandler) {
+        levelSelect.removeEventListener('change', this.spellLevelChangeHandler);
+      }
+      
+      // Create and store the change handler
+      this.spellLevelChangeHandler = (e) => {
         this.updateSpellLevel(parseInt(e.target.value));
-      });
+      };
+      
+      levelSelect.addEventListener('change', this.spellLevelChangeHandler);
     }
 
-    // Add click handlers for pet options
-    mainContent.addEventListener('click', (e) => {
-      const petOption = e.target.closest('.pet-option');
-      if (petOption) {
-        this.togglePetDetails(petOption);
+    // Create and store the click handler for pet options
+    this.spellDetailsClickHandler = (e) => {
+      // Handle activate button clicks
+      const activateBtn = e.target.closest('.activate-pet-btn');
+      if (activateBtn) {
+        e.stopPropagation();
+        const spellKey = activateBtn.dataset.spellKey || this.currentSpell;
+        const petIndex = parseInt(activateBtn.dataset.petIndex);
+        const spellLevel = parseInt(activateBtn.dataset.spellLevel) || this.currentLevel;
+        
+        this.activatePet(spellKey, petIndex, spellLevel);
+        return;
       }
-    });
+      
+      // Only respond to clicks on pet headers for expanding/collapsing
+      const petHeader = e.target.closest('.pet-option-header');
+      if (petHeader && !e.target.closest('.activate-pet-btn')) {
+        const petOption = petHeader.closest('.pet-option');
+        if (petOption) {
+          this.togglePetDetails(petOption);
+        }
+      }
+    };
+    
+    // Add the click handler
+    mainContent.addEventListener('click', this.spellDetailsClickHandler);
   }
 
   updateSpellLevel(newLevel) {
     this.currentLevel = newLevel;
     const spellData = petsData[this.currentSpell];
+    const spellDataWithKey = { ...spellData, spellKey: this.currentSpell };
     const petsContainer = this.modal.querySelector('.pets-container');
     
-    petsContainer.innerHTML = PetTemplates.renderPetOptions(spellData, newLevel);
+    petsContainer.innerHTML = PetTemplates.renderPetOptions(spellDataWithKey, newLevel, this.activePetsManager);
+    this.restoreExpandedStates(); // Restore expanded states after regenerating HTML
     this.updateStatus(`Updated to spell level ${newLevel}`);
+  }
+
+  restoreExpandedStates() {
+    // Only restore expanded states for pets belonging to the current spell
+    this.expandedPets.forEach(petId => {
+      // Check if this petId belongs to the current spell
+      if (petId.startsWith(`${this.currentSpell}-`)) {
+        // Extract pet index from the petId (format: "spellKey-index")
+        const petIndex = petId.split('-').pop();
+        const petOption = this.modal.querySelector(`[data-pet-index="${petIndex}"]`);
+        
+        if (petOption) {
+          const content = petOption.querySelector('.pet-option-content');
+          if (content) {
+            petOption.classList.add('expanded');
+            content.style.display = 'block';
+          }
+        }
+      }
+    });
   }
 
   togglePetDetails(petOption) {
     const content = petOption.querySelector('.pet-option-content');
     const isExpanded = petOption.classList.contains('expanded');
     
-    // Collapse all other pet options
-    this.modal.querySelectorAll('.pet-option').forEach(option => {
-      option.classList.remove('expanded');
-      option.querySelector('.pet-option-content').style.display = 'none';
-    });
+    // Use the existing data-pet-index as the pet identifier
+    const petIndex = petOption.dataset.petIndex;
+    const petId = `${this.currentSpell}-${petIndex}`;
     
-    if (!isExpanded) {
+    if (!petIndex) {
+      console.warn('Pet option missing data-pet-index attribute');
+      return;
+    }
+    
+    if (isExpanded) {
+      // Collapse this pet
+      petOption.classList.remove('expanded');
+      content.style.display = 'none';
+      this.expandedPets.delete(petId);
+    } else {
+      // Expand this pet
       petOption.classList.add('expanded');
       content.style.display = 'block';
+      this.expandedPets.add(petId);
     }
   }
 
@@ -320,6 +433,44 @@ class PetsModal {
           statusText.textContent = 'Ready';
         }
       }, 3000);
+    }
+  }
+
+  activatePet(spellKey, petIndex, spellLevel) {
+    const spellData = petsData[spellKey];
+    const pet = spellData?.options[petIndex];
+    
+    if (!pet || !spellData) {
+      this.updateStatus('Error: Pet not found');
+      return;
+    }
+
+    try {
+      const activePet = this.activePetsManager.activatePet(spellKey, petIndex, spellLevel);
+      if (activePet) {
+        this.updateStatus(`Activated ${activePet.petData.instanceName}`);
+        
+        // Refresh the UI to show updated active counts
+        this.refreshCurrentView();
+      } else {
+        this.updateStatus('Failed to activate pet');
+      }
+    } catch (error) {
+      console.error('Error activating pet:', error);
+      this.updateStatus('Error activating pet');
+    }
+  }
+
+  refreshCurrentView() {
+    if (this.currentSpell) {
+      const spellData = petsData[this.currentSpell];
+      const spellDataWithKey = { ...spellData, spellKey: this.currentSpell };
+      const petsContainer = this.modal.querySelector('.pets-container');
+      
+      if (petsContainer) {
+        petsContainer.innerHTML = PetTemplates.renderPetOptions(spellDataWithKey, this.currentLevel, this.activePetsManager);
+        this.restoreExpandedStates();
+      }
     }
   }
 

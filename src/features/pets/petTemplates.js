@@ -43,12 +43,14 @@ class PetTemplates {
 
   static renderStatBlock(pet, spellLevel = null, minimumLevel = 1) {
     const effectiveLevel = spellLevel || minimumLevel;
-    const stats = pet.baseStats || pet.stats;
+    // Handle different stat structures: some pets have stats directly, others have baseStats.stats
+    const stats = pet.baseStats?.stats || pet.stats;
+    const petData = pet.baseStats || pet;
     
     // Calculate scaled values
     const scaledHP = this.calculateScaledHP(
-      pet.baseStats?.hp || pet.hp,
-      pet.baseStats?.hpPerLevel,
+      petData.hp,
+      petData.hpPerLevel,
       effectiveLevel,
       minimumLevel
     );
@@ -62,13 +64,13 @@ class PetTemplates {
         
         <div class="pet-basic-stats">
           <div class="stat-line">
-            <strong>Armor Class:</strong> ${pet.ac || stats?.ac || 'N/A'}
+            <strong>Armor Class:</strong> ${petData.ac || 'N/A'}
           </div>
           <div class="stat-line">
             <strong>Hit Points:</strong> ${scaledHP}${spellLevel ? ` (scaled to level ${spellLevel})` : ''}
           </div>
           <div class="stat-line">
-            <strong>Speed:</strong> ${pet.speed || stats?.speed || 'N/A'}
+            <strong>Speed:</strong> ${petData.speed || 'N/A'}
           </div>
         </div>
 
@@ -116,9 +118,11 @@ class PetTemplates {
 
   static renderSkillsAndSenses(pet) {
     let content = '';
+    const petData = pet.baseStats || pet;
     
-    if (pet.skills) {
-      const skillsList = Object.entries(pet.skills)
+    if (pet.skills || petData.skills) {
+      const skills = pet.skills || petData.skills;
+      const skillsList = Object.entries(skills)
         .map(([skill, bonus]) => `${skill.charAt(0).toUpperCase() + skill.slice(1)} +${bonus}`)
         .join(', ');
       content += `
@@ -128,18 +132,20 @@ class PetTemplates {
       `;
     }
 
-    if (pet.senses) {
+    if (pet.senses || petData.senses) {
+      const senses = pet.senses || petData.senses;
       content += `
         <div class="stat-line">
-          <strong>Senses:</strong> ${pet.senses}
+          <strong>Senses:</strong> ${senses}
         </div>
       `;
     }
 
-    if (pet.languages) {
+    if (pet.languages || petData.languages) {
+      const languages = pet.languages || petData.languages;
       content += `
         <div class="stat-line">
-          <strong>Languages:</strong> ${pet.languages}
+          <strong>Languages:</strong> ${languages}
         </div>
       `;
     }
@@ -149,27 +155,31 @@ class PetTemplates {
 
   static renderResistancesAndImmunities(pet) {
     let content = '';
+    const petData = pet.baseStats || pet;
     
-    if (pet.damageResistance) {
+    if (pet.damageResistance || petData.damageResistance) {
+      const resistance = pet.damageResistance || petData.damageResistance;
       content += `
         <div class="stat-line">
-          <strong>Damage Resistances:</strong> ${pet.damageResistance}
+          <strong>Damage Resistances:</strong> ${resistance}
         </div>
       `;
     }
 
-    if (pet.damageImmunity) {
+    if (pet.damageImmunity || petData.damageImmunity) {
+      const immunity = pet.damageImmunity || petData.damageImmunity;
       content += `
         <div class="stat-line">
-          <strong>Damage Immunities:</strong> ${pet.damageImmunity}
+          <strong>Damage Immunities:</strong> ${immunity}
         </div>
       `;
     }
 
-    if (pet.conditionImmunity) {
+    if (pet.conditionImmunity || petData.conditionImmunity) {
+      const conditionImmunity = pet.conditionImmunity || petData.conditionImmunity;
       content += `
         <div class="stat-line">
-          <strong>Condition Immunities:</strong> ${pet.conditionImmunity}
+          <strong>Condition Immunities:</strong> ${conditionImmunity}
         </div>
       `;
     }
@@ -253,22 +263,38 @@ class PetTemplates {
     `;
   }
 
-  static renderPetOptions(spellData, selectedLevel = null) {
+  static renderPetOptions(spellData, selectedLevel = null, activePetsManager = null) {
     const effectiveLevel = selectedLevel || spellData.summonLevel;
     
     return `
       <div class="pet-options">
-        ${spellData.options.map((pet, index) => `
-          <div class="pet-option" data-pet-index="${index}">
-            <div class="pet-option-header">
-              <h4>${pet.name}</h4>
-              ${pet.maxCount ? `<span class="max-count">Max: ${pet.maxCount}</span>` : ''}
+        ${spellData.options.map((pet, index) => {
+          const isActive = activePetsManager?.isPetActive(spellData.spellKey || Object.keys(window.petsData || {}).find(key => window.petsData[key] === spellData), index);
+          const activeCount = activePetsManager?.getActivePetsByType(spellData.spellKey || Object.keys(window.petsData || {}).find(key => window.petsData[key] === spellData), index).length || 0;
+          
+          return `
+            <div class="pet-option ${isActive ? 'has-active-pets' : ''}" data-pet-index="${index}">
+              <div class="pet-option-header">
+                <div class="pet-header-main">
+                  <h4>${pet.name}</h4>
+                  ${pet.maxCount ? `<span class="max-count">Max: ${pet.maxCount}</span>` : ''}
+                  ${activeCount > 0 ? `<span class="active-pets-indicator">${activeCount} active</span>` : ''}
+                </div>
+                <div class="pet-header-controls">
+                  <button class="activate-pet-btn" 
+                          data-spell-key="${spellData.spellKey || ''}" 
+                          data-pet-index="${index}"
+                          data-spell-level="${effectiveLevel}">
+                    + Activate
+                  </button>
+                </div>
+              </div>
+              <div class="pet-option-content">
+                ${this.renderStatBlock(pet, effectiveLevel, spellData.summonLevel)}
+              </div>
             </div>
-            <div class="pet-option-content">
-              ${this.renderStatBlock(pet, effectiveLevel, spellData.summonLevel)}
-            </div>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     `;
   }

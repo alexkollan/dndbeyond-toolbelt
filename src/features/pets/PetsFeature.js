@@ -430,6 +430,580 @@ class PetsFeature {
           grid-template-columns: repeat(3, 1fr);
         }
       }
+
+      /* Pet Header Controls */
+      .pet-option-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+      }
+
+      .pet-header-main {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+      }
+
+      .pet-header-controls {
+        display: flex;
+        gap: 8px;
+      }
+
+      /* Active Pet Cards Styles */
+      .active-pet-card {
+        position: fixed;
+        background: linear-gradient(135deg, #f9f5f0 0%, #f4ede4 100%);
+        border: 2px solid #8b4513;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        font-family: 'Roboto Condensed', Arial, sans-serif;
+        user-select: none;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        min-width: 250px;
+        min-height: 300px;
+        max-width: 600px;
+        max-height: 800px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .active-pet-card.minimized {
+        width: 80px !important;
+        height: 60px !important;
+        min-width: 80px;
+        min-height: 60px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+
+      .active-pet-card.minimized:hover {
+        transform: scale(1.05);
+      }
+
+      /* Active Pet Header */
+      .active-pet-header {
+        background: linear-gradient(135deg, #c41e3a 0%, #8b2635 100%);
+        color: white;
+        padding: 8px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: grab;
+        border-bottom: 2px solid #8b4513;
+        flex-shrink: 0;
+      }
+
+      .active-pet-header:active {
+        cursor: grabbing;
+      }
+
+      .active-pet-title h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .active-pet-title .pet-type {
+        font-size: 12px;
+        opacity: 0.9;
+        font-style: italic;
+      }
+
+      .active-pet-controls {
+        display: flex;
+        gap: 4px;
+      }
+
+      .active-pet-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease;
+      }
+
+      .active-pet-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      /* HP Section */
+      .active-pet-hp-section {
+        padding: 12px;
+        border-bottom: 1px solid #d2b48c;
+        background: rgba(255, 255, 255, 0.5);
+        flex-shrink: 0;
+      }
+
+      .hp-display {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .hp-current {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .hp-input {
+        width: 50px;
+        padding: 4px;
+        border: 1px solid #8b4513;
+        border-radius: 4px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        background: white;
+      }
+
+      .hp-separator {
+        color: #8b4513;
+        font-size: 20px;
+      }
+
+      .hp-max {
+        color: #2e7d32;
+        font-size: 18px;
+      }
+
+      .hp-temp {
+        color: #1976d2;
+        font-size: 14px;
+        background: rgba(25, 118, 210, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid #1976d2;
+      }
+
+      .hp-bar {
+        width: 100%;
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 12px;
+        border: 1px solid #8b4513;
+      }
+
+      .hp-bar-fill {
+        height: 100%;
+        transition: width 0.3s ease, background-color 0.3s ease;
+      }
+
+      .hp-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .hp-control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .hp-control-group label {
+        font-size: 12px;
+        font-weight: bold;
+        color: #8b4513;
+      }
+
+      .hp-control-group input {
+        padding: 4px;
+        border: 1px solid #8b4513;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .hp-control-group button {
+        padding: 4px 8px;
+        background: #c41e3a;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s ease;
+      }
+
+      .hp-control-group button:hover {
+        background: #8b2635;
+      }
+
+      .hp-quick-buttons {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+      }
+
+      .quick-hp-btn {
+        padding: 4px 8px;
+        background: #8b4513;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        min-width: 32px;
+        transition: background-color 0.2s ease;
+      }
+
+      .quick-hp-btn:hover {
+        background: #a0522d;
+      }
+
+      /* Stats Section */
+      .active-pet-stats {
+        padding: 12px;
+        overflow-y: auto;
+        flex: 1;
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      /* Override pet stat block styles for active cards */
+      .active-pet-card .pet-stat-block {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        margin: 0;
+      }
+
+      .active-pet-card .pet-header h3 {
+        color: #8b4513;
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+
+      .active-pet-card .pet-type {
+        color: #666;
+        font-size: 12px;
+        font-style: italic;
+      }
+
+      .active-pet-card .ability-scores {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 12px 0;
+      }
+
+      .active-pet-card .ability-score {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid #8b4513;
+        border-radius: 4px;
+        padding: 6px 4px;
+      }
+
+      .active-pet-card .ability-name {
+        font-size: 10px;
+        font-weight: bold;
+        color: #8b4513;
+        margin-bottom: 2px;
+      }
+
+      .active-pet-card .ability-value {
+        font-size: 12px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .active-pet-card .stat-line {
+        font-size: 12px;
+        margin: 4px 0;
+        line-height: 1.3;
+      }
+
+      .active-pet-card .stat-line strong {
+        color: #8b4513;
+      }
+
+      /* Resize Handles */
+      .resize-handle {
+        position: absolute;
+        background: transparent;
+        z-index: 10;
+      }
+
+      .resize-n, .resize-s {
+        width: 100%;
+        height: 8px;
+        cursor: ns-resize;
+      }
+
+      .resize-e, .resize-w {
+        width: 8px;
+        height: 100%;
+        cursor: ew-resize;
+      }
+
+      .resize-n { top: -4px; left: 0; }
+      .resize-s { bottom: -4px; left: 0; }
+      .resize-e { top: 0; right: -4px; }
+      .resize-w { top: 0; left: -4px; }
+
+      .resize-ne, .resize-nw, .resize-se, .resize-sw {
+        width: 12px;
+        height: 12px;
+      }
+
+      .resize-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+      .resize-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+      .resize-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+      .resize-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+
+      /* Minimized Card Styles */
+      .minimized-pet-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 4px;
+        position: relative;
+      }
+
+      .minimized-pet-name {
+        font-size: 10px;
+        font-weight: bold;
+        color: #8b4513;
+        text-align: center;
+        line-height: 1;
+        margin-bottom: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 70px;
+      }
+
+      .minimized-hp-bar {
+        width: 60px;
+        height: 4px;
+        background: #e0e0e0;
+        border-radius: 2px;
+        overflow: hidden;
+        margin: 2px 0;
+        border: 1px solid #8b4513;
+      }
+
+      .minimized-hp-fill {
+        height: 100%;
+        transition: width 0.3s ease;
+        background: #4CAF50;
+      }
+
+      .minimized-hp-text {
+        font-size: 8px;
+        color: #666;
+        line-height: 1;
+      }
+
+      .minimized-close-btn {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 16px;
+        height: 16px;
+        background: #c41e3a;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .active-pet-card.minimized:hover .minimized-close-btn {
+        opacity: 1;
+      }
+
+      /* Minimized pet floating button */
+      .active-pet-minimized {
+        position: fixed;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        border: 3px solid #fff;
+        color: white;
+        cursor: pointer;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .active-pet-minimized:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      }
+
+      .active-pet-minimized:hover .minimized-pet-tooltip {
+        display: block;
+      }
+
+      .minimized-pet-icon {
+        font-size: 24px;
+      }
+
+      .minimized-pet-tooltip {
+        display: none;
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        white-space: nowrap;
+        font-size: 12px;
+        pointer-events: none;
+        z-index: 10001;
+      }
+
+      .tooltip-name {
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+
+      .tooltip-hp {
+        color: #4fc3f7;
+      }
+
+      /* Resize handles */
+      .resize-handle {
+        position: absolute;
+        background-color: transparent;
+        z-index: 10;
+      }
+
+      .resize-handle:hover {
+        background-color: rgba(79, 195, 247, 0.3);
+      }
+
+      .resize-n, .resize-s {
+        left: 10%;
+        right: 10%;
+        height: 10px;
+        cursor: ns-resize;
+      }
+
+      .resize-n { top: -5px; }
+      .resize-s { bottom: -5px; }
+
+      .resize-e, .resize-w {
+        top: 10%;
+        bottom: 10%;
+        width: 10px;
+        cursor: ew-resize;
+      }
+
+      .resize-e { right: -5px; }
+      .resize-w { left: -5px; }
+
+      .resize-ne, .resize-se, .resize-sw, .resize-nw {
+        width: 20px;
+        height: 20px;
+      }
+
+      .resize-ne {
+        top: -10px;
+        right: -10px;
+        cursor: nesw-resize;
+      }
+
+      .resize-se {
+        bottom: -10px;
+        right: -10px;
+        cursor: nwse-resize;
+      }
+
+      .resize-sw {
+        bottom: -10px;
+        left: -10px;
+        cursor: nesw-resize;
+      }
+
+      .resize-nw {
+        top: -10px;
+        left: -10px;
+        cursor: nwse-resize;
+      }
+
+      .active-pet-card.resizing {
+        opacity: 0.8;
+        user-select: none;
+      }
+
+      /* Add button styles for activating pets */
+      .activate-pet-btn {
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .activate-pet-btn:hover {
+        background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .activate-pet-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Pet option active indicator */
+      .pet-option.has-active-pets {
+        border-left: 4px solid #4CAF50;
+      }
+
+      .pet-option.has-active-pets .pet-option-header {
+        background: linear-gradient(to right, rgba(76, 175, 80, 0.1), transparent);
+      }
+
+      .active-pets-indicator {
+        display: inline-block;
+        background: #4CAF50;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: bold;
+      }
     `;
     document.head.appendChild(style);
     console.log('🐾 Pets feature styles injected');
